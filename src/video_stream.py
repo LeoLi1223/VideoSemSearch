@@ -29,8 +29,9 @@ class VideoStream:
             The captured frame (as a numpy array) or None if no frame is available.
         """
         ret, frame = self.capture.read()
-        if not ret:
-            raise RuntimeError("Failed to read frame")
+        if not ret or frame is None or frame.size == 0:
+            return None
+            # raise RuntimeError("Failed to read frame")
 
         return frame
 
