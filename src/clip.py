@@ -63,8 +63,7 @@ def run_clip(text_list, image, frame_index=0):
     print()
 
     # save image if any score exceeds threshold
-    # if any(score > 28 for score in result.values()):
-    if any(score > 0.90 for score in softmax.values()):
+    if any(score > 0.99 for score in softmax.values()):
         with save_lock:
 
             if frame_index - last_saved_frame[0] < save_interval:
