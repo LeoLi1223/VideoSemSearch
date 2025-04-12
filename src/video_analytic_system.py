@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 from video_stream import VideoStream
 from clip import run_clip
+from prompt_processor import split_joined_predicates
 
 
 class VideoAnalyticSystem:
@@ -64,12 +65,14 @@ if __name__ == "__main__":
     
     # ✅ Ask for the Natural Language Input
     user_prompt = input("Enter what you'd like to search for in the video: ").strip() 
-
+    user_predicates = split_joined_predicates(user_prompt)
+    print(user_predicates)
     # Softmax default_queries
     default_queries = ["mouse", "mug", "water bottle", "book", "orange", "computer", "gengar", "ghost", "phone", "bag"]
 
     # Append the user input to the first
-    query_list = [user_prompt] + default_queries
+    # query_list = [user_prompt] + default_queries
+    query_list = user_predicates + default_queries
 
     # Initialize the system
     system = VideoAnalyticSystem(source, query_list)

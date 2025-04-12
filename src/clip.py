@@ -8,7 +8,7 @@ import os
 import numpy as np
 
 last_saved_frame = [float("-inf")]  # 用列表包一层避免闭包问题
-save_interval = 100      # 至少间隔 100 帧才允许保存
+save_interval = 30      # 至少间隔 100 帧才允许保存
 
 # Load CLIP model (ViT-B/32)
 save_lock = threading.Lock()
@@ -58,12 +58,16 @@ def run_clip(text_list, image, frame_index=0):
     softmax_scores = exp_scores / exp_scores.sum(axis=0)
     softmax = {text: float(score) for text, score in zip(text_list, softmax_scores)}
 
-    print(f"similarity scores: {result}")
-    print(f"softmax scores: {softmax}")
-    print()
+    # print(f"similarity scores: {result}")
+    # print(f"softmax scores: {softmax}")
+    # print()
 
     # save image if any score exceeds threshold
     if any(score > 0.99 for score in softmax.values()):
+        # print(f"similarity scores: {result}")
+        print(f"softmax scores: {softmax}")
+        print(f"Softmax sum: {sum(softmax.values())}")
+        print()
         with save_lock:
 
             if frame_index - last_saved_frame[0] < save_interval:
