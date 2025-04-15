@@ -9,7 +9,7 @@ import os
 import numpy as np
 
 last_saved_frame = [float("-inf")]  # 用列表包一层避免闭包问题
-save_interval = 30      # 至少间隔 100 帧才允许保存
+save_interval = 30  # 至少间隔 100 帧才允许保存
 softmax_threshold = 0.99
 default_fps = 10.0
 default_frame_skip = 5
@@ -32,8 +32,8 @@ os.makedirs(output_folder, exist_ok=True)
 # === Segment buffer for live aggregation ===
 segment = {
     "start": None,  # start frame index
-    "end": None,    # last included frame index
-    "scores": []    # list of softmax scores
+    "end": None,  # last included frame index
+    "scores": [],  # list of softmax scores
 }
 
 # === Tracking ===
@@ -45,7 +45,8 @@ for fname in os.listdir(output_folder):
     file_path = os.path.join(output_folder, fname)
     if os.path.isfile(file_path):
         os.remove(file_path)
-        
+
+
 def flush_segment_to_json(query_name, fps, json_path="output_windows.json"):
     if segment["start"] is None:
         return
@@ -71,9 +72,20 @@ def flush_segment_to_json(query_name, fps, json_path="output_windows.json"):
     segment["scores"] = []
 
 
-
-def run_clip(text_list, image, frame_index=0, query_name="user_query", frame_skip = default_frame_skip, fps=default_fps, json_path="output_windows.json"):
+def run_clip(
+    user_query,
+    default_query,
+    image,
+    frame_index=0,
+    query_name="user_query",
+    frame_skip=default_frame_skip,
+    fps=default_fps,
+    json_path="output_windows.json",
+):
     global matched_frame_indices
+
+    num_user_query = len(user_query)
+    text_list = user_query + default_query
 
     # === Preprocess inputs for CLIP (batch text with one image)
     inputs = processor(text=text_list, images=image, return_tensors="pt", padding=True)
@@ -86,7 +98,7 @@ def run_clip(text_list, image, frame_index=0, query_name="user_query", frame_ski
         outputs = model(**inputs)
 
         image_embeds = outputs.image_embeds  # (1, 512)
-        text_embeds = outputs.text_embeds    # (N, 512)
+        text_embeds = outputs.text_embeds  # (N, 512)
 
     # === Compute cosine similarity for each query → shape (N,)
     similarity = (image_embeds @ text_embeds.T).squeeze(0)
@@ -96,11 +108,16 @@ def run_clip(text_list, image, frame_index=0, query_name="user_query", frame_ski
 
     # === Compose result dictionary
     result = {text: float(score) for text, score in zip(text_list, similarity_scores)}
-    
+
     # === Softmax
     exp_scores = np.exp(similarity_scores - np.max(similarity_scores))
     softmax_scores = exp_scores / exp_scores.sum(axis=0)
-    softmax = {text: float(score) for text, score in zip(text_list, softmax_scores)}
+    softmax = {
+        text: float(score)
+        for text, score in zip(
+            text_list[:num_user_query], softmax_scores[:num_user_query]
+        )
+    }
 
     # === Record all matches over threshold, even if not saved
     matched = False
@@ -121,10 +138,10 @@ def run_clip(text_list, image, frame_index=0, query_name="user_query", frame_ski
                 segment["start"] = frame_index
                 segment["end"] = frame_index
                 segment["scores"] = [score]
-            break # one match is enough to include frame
+            break  # one match is enough to include frame
 
     if not matched:
-        flush_segment_to_json(query_name, fps, json_path) 
+        flush_segment_to_json(query_name, fps, json_path)
 
     # === Save image if any score exceeds threshold
     if any(score > softmax_threshold for score in softmax.values()):
@@ -135,14 +152,19 @@ def run_clip(text_list, image, frame_index=0, query_name="user_query", frame_ski
         with save_lock:
 
             if frame_index - last_saved_frame[0] < save_interval:
-                print(f"[INFO] Skipping frame {frame_index} — too close to last saved frame {last_saved_frame[0]}")
+                print(
+                    f"[INFO] Skipping frame {frame_index} — too close to last saved frame {last_saved_frame[0]}"
+                )
                 return  # 忽略这帧
-            
+
             # print(f"score: {score}")
-            existing = sorted([
-                fname for fname in os.listdir(output_folder)
-                if fname.startswith("match_") and fname.endswith(".png")
-            ])
+            existing = sorted(
+                [
+                    fname
+                    for fname in os.listdir(output_folder)
+                    if fname.startswith("match_") and fname.endswith(".png")
+                ]
+            )
             if len(existing) < max_images:
                 next_index = len(existing) + 1
                 save_path = os.path.join(output_folder, f"match_{next_index}.png")
@@ -153,6 +175,9 @@ def run_clip(text_list, image, frame_index=0, query_name="user_query", frame_ski
             else:
                 print("Maximum number of matched images (10) already saved.")
 
-def finalize_clip_session(query_name="user_query", fps=default_fps, json_path="output_windows.json"):
+
+def finalize_clip_session(
+    query_name="user_query", fps=default_fps, json_path="output_windows.json"
+):
     flush_segment_to_json(query_name, fps, json_path)
     print(f"[INFO] Final segment flushed to {json_path}")

@@ -12,9 +12,10 @@ from prompt_processor import split_joined_predicates
 
 
 class VideoAnalyticSystem:
-    def __init__(self, video_source, query_list: list[str], query_name: str):
+    def __init__(self, video_source, user_query: list[str], default_queries: list[str], query_name: str):
         self.video_source = video_source
-        self.query_list = query_list
+        self.user_query = user_query
+        self.default_queries = default_queries
         self.video_capture = VideoStream(self.video_source)
         self.fps = self.video_capture.fps
         self.frame_to_skip = 5
@@ -47,7 +48,7 @@ class VideoAnalyticSystem:
                 
 
                 # future = self.executor.submit(run_clip, self.query_list, frame)
-                run_clip(self.query_list, frame, frame_index, self.query_name,frame_skip = self.frame_to_skip, fps=self.fps)
+                run_clip(self.user_query, self.default_queries, frame, frame_index, self.query_name,frame_skip = self.frame_to_skip, fps=self.fps)
                 # frame_index += 1
 
         except KeyboardInterrupt:
@@ -77,7 +78,7 @@ if __name__ == "__main__":
     query_list = user_predicates + default_queries
 
     # Initialize the system
-    system = VideoAnalyticSystem(source, query_list, query_name=user_prompt)
+    system = VideoAnalyticSystem(source, user_predicates, default_queries, query_name=user_prompt)
 
     # Loading Streaming Road Camera
     # system = VideoAnalyticSystem(0, ["mouse", "mug", "water bottle", "book", "apple", "computer", "gengar", "ghost", "phone", "bag"])
