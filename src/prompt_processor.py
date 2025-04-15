@@ -5,11 +5,18 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Split user input into multiple atomic predicates
 def split_joined_predicates(prompt: str) -> list:
+    # system_prompt = (
+    #     "You are an assistant that splits a visual search request into multiple standalone visual predicates. "
+    #     "Each predicate should describe a single visual item or scene clearly. "
+    #     "Do not return a sentence. Just return a Python list of short phrases."
+    # )
+
     system_prompt = (
-        "You are an assistant that splits a visual search request into multiple standalone visual predicates. "
-        "Each predicate should describe a single visual item or scene clearly. "
-        "Do not return a sentence. Just return a Python list of short phrases."
-    )
+    "You are an assistant that splits a visual search request into multiple standalone visual predicates. "
+    "Each predicate should describe a single visual item or scene clearly. "
+    "Start the list with the original core phrase itself, followed by any meaningful variations. "
+    "Return a Python list of concise phrases only."
+)
 
     user_prompt = f"""
 User input: "{prompt}"

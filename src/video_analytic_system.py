@@ -7,21 +7,19 @@ from torchvision import transforms
 import matplotlib.pyplot as plt
 
 from video_stream import VideoStream
-from clip import run_clip
+from clip import run_clip, finalize_clip_session
 from prompt_processor import split_joined_predicates
 
 
 class VideoAnalyticSystem:
-    def __init__(
-        self,
-        video_source,
-        query_list: list[str] = None,
-    ):
+    def __init__(self, video_source, query_list: list[str], query_name: str):
         self.video_source = video_source
         self.query_list = query_list
         self.video_capture = VideoStream(self.video_source)
+        self.fps = self.video_capture.fps
         self.frame_to_skip = 5
         self.executor = ThreadPoolExecutor(2)
+        self.query_name = query_name
 
     def run(self):
         try:
@@ -33,6 +31,8 @@ class VideoAnalyticSystem:
                 if frame is None:
                     print("[INFO] Video ended.")
                     break
+            
+                frame_index += 1  # ← 提前递增！
 
                 if self.frame_to_skip > 0:
                     if skipped == 0:
@@ -47,8 +47,8 @@ class VideoAnalyticSystem:
                 
 
                 # future = self.executor.submit(run_clip, self.query_list, frame)
-                run_clip(self.query_list, frame, frame_index)
-                frame_index += 1
+                run_clip(self.query_list, frame, frame_index, self.query_name,frame_skip = self.frame_to_skip, fps=self.fps)
+                # frame_index += 1
 
         except KeyboardInterrupt:
             print("\n[INFO] Ctrl+C detected. Cleaning up...")
@@ -57,11 +57,13 @@ class VideoAnalyticSystem:
         finally:
             # self.executor.shutdown()
             self.video_capture.release()
+            finalize_clip_session(query_name=self.query_name, fps=self.fps, json_path="output_windows.json")
+            print("[INFO] Completed. Saved pred_relevant_windows to output_windows.json")
 
 
 if __name__ == "__main__":
-    source = "../data/market.mp4"
-    # source = "../data/road.mp4"
+    # source = "../data/market.mp4"
+    source = "../data/sanFrancisco.mp4"
     
     # ✅ Ask for the Natural Language Input
     user_prompt = input("Enter what you'd like to search for in the video: ").strip() 
@@ -75,7 +77,7 @@ if __name__ == "__main__":
     query_list = user_predicates + default_queries
 
     # Initialize the system
-    system = VideoAnalyticSystem(source, query_list)
+    system = VideoAnalyticSystem(source, query_list, query_name=user_prompt)
 
     # Loading Streaming Road Camera
     # system = VideoAnalyticSystem(0, ["mouse", "mug", "water bottle", "book", "apple", "computer", "gengar", "ghost", "phone", "bag"])

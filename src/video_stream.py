@@ -20,6 +20,7 @@ class VideoStream:
             source (int or str): Video source (default is 0 for the primary webcam).
         """
         self.capture = cv2.VideoCapture(source)
+        self.fps = self.capture.get(cv2.CAP_PROP_FPS)
 
     def read_frame(self):
         """
