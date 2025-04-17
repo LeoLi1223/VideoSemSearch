@@ -3,29 +3,23 @@ import os
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Split user input into multiple atomic predicates
-def split_joined_predicates(prompt: str) -> list:
-    # system_prompt = (
-    #     "You are an assistant that splits a visual search request into multiple standalone visual predicates. "
-    #     "Each predicate should describe a single visual item or scene clearly. "
-    #     "Do not return a sentence. Just return a Python list of short phrases."
-    # )
+def split_joined_predicates(prompt: str) -> tuple[list[str], list[str]]:
+    system_prompt = """
+        You are an assistant that extracts exactly what the user *wants* and *doesn't want* to see from a natural language visual query.
+        Strictly use the user's original words — do not rephrase, elaborate, or infer additional meanings.
 
-    system_prompt = (
-    "You are an assistant that splits a visual search request into multiple standalone visual predicates. "
-    "Each predicate should describe a single visual item or scene clearly. "
-    "Start the list with the original core phrase itself, followed by any meaningful variations. "
-    "Return a Python list of concise phrases only."
-)
+        Return a Python dictionary in the format:
+        {
+        "include": [...],   # exact phrases the user wants to see
+        "exclude": [...]    # exact phrases the user does NOT want to see
+        }
 
-    user_prompt = f"""
-User input: "{prompt}"
+        Do not interpret or expand the query (e.g., don't turn "apples" into "apples in a basket").
+        Only extract direct phrases from the user input.
 
-Output a Python list of concise, separate visual predicates. For example:
-→ ["apples in the market", "peanuts at some stand"]
-
-Only return the Python list. No explanation.
-"""
+        Only return the Python dictionary. No explanation.
+        """
+    user_prompt = f'User input: "{prompt}"'
 
     try:
         response = client.chat.completions.create(
@@ -38,9 +32,13 @@ Only return the Python list. No explanation.
         )
 
         content = response.choices[0].message.content.strip()
-        result = eval(content)
-        return result
+
+        # Safe parsing using `ast.literal_eval`
+        import ast
+        parsed = ast.literal_eval(content)
+        return parsed.get("include", []), parsed.get("exclude", [])
 
     except Exception as e:
-        print("❌ LLM error while splitting predicates:", e)
-        return []
+        print("Error extracting include/exclude predicates:", e)
+        return [], []
+    
