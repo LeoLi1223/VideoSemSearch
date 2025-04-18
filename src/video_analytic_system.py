@@ -61,8 +61,8 @@ class VideoAnalyticSystem:
             print("[INFO] Completed. Saved pred_relevant_windows to output_windows.json")
 
 if __name__ == "__main__":
-    # source = "../data/market.mp4"
-    source = "../data/sanFrancisco.mp4"
+    source = "../data/market.mp4"
+    # source = "../data/sanFrancisco.mp4"
     
     # Delete the old JSON file
     json_path = "output_windows.json"
@@ -77,12 +77,24 @@ if __name__ == "__main__":
     print(f'Exclude: {exclude}')
 
     # Softmax default_queries
-    default_queries = [
-    "mouse", "mug", "water bottle", "book", "computer", "gengar", "ghost", "phone", "bag",
-    "fruit basket", "table", "background", "buildings", "cars", "person",
-    "woman", "man", "standing person", "sitting person", "face", "market vendor",
-    "hand", "body", "crowd", "tree", "sky", "box", "sign", "poster", "camera"
-    ]
+    default_queries = ["mouse", "mug", "water bottle", "book", "orange", "computer", "gengar", "ghost", "phone", "bag",
+                       "laptop","phone","backpack","keyboard","headphones","sofa",
+  "television",
+  "bed",
+  "lamp",
+  "plant in a pot",
+  "person sitting at a table",
+  "window with sunlight",
+  "open fridge",
+  "bookshelf",
+  "mirror"]
+
+    # default_queries = [
+    # "mouse", "mug", "water bottle", "book", "computer", "gengar", "ghost", "phone", "bag",
+    # "umbrella", "cookie","table", "background", "buildings", "cars", "person",
+    # "woman", "man", "standing person", "sitting person", "face", "market vendor",
+    # "hand", "body", "crowd", "tree", "sky", "box", "sign", "poster", "camera"
+    # ]
     
     # Initialize the system
     system = VideoAnalyticSystem(source, include, exclude, default_queries, query_name=user_prompt)

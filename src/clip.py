@@ -10,8 +10,8 @@ import numpy as np
 
 last_saved_frame = [float("-inf")]  # 用列表包一层避免闭包问题
 save_interval = 30  # 至少间隔 100 帧才允许保存
-softmax_threshold = 0.99 # For Inclusion Query
-exclude_threshold = 0.99 # For Exclusion Query
+softmax_threshold = 0.995 # For Inclusion Query
+exclude_threshold = 0.20 # For Exclusion Query
 default_fps = 10.0
 default_frame_skip = 5
 # fps will be passed in dynamically
