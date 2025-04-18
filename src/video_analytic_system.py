@@ -5,7 +5,7 @@ from PIL import Image
 from concurrent.futures import ThreadPoolExecutor, Future
 
 from .video_stream import VideoStream
-from .clip import run_clip, finalize_clip_session
+from .clip import run_clip, finalize_clip_session, flush_query_header
 from .prompt_processor import split_joined_predicates
 
 
@@ -18,6 +18,7 @@ class VideoAnalyticSystem:
         default_queries: list[str],
         raw_query: str,
         qid: str,
+        json_path: str = "output_windows.json",
     ):
         self.video_source = video_source
         self.include_queries = include_queries
@@ -30,11 +31,12 @@ class VideoAnalyticSystem:
         self.raw_query = raw_query
         self.qid = qid
         self.vid = video_source.split("/")[-1].split(".")[0]
-
+        self.json_path = json_path
     def run(self):
         try:
             skipped = 0
             frame_index = 0
+            flush_query_header(self.qid, self.raw_query, self.vid, self.fps, self.json_path)
             while True:
                 frame = self.video_capture.read_frame()
 
@@ -55,7 +57,7 @@ class VideoAnalyticSystem:
                 frame = Image.fromarray(frame)
 
                 # future = self.executor.submit(run_clip, self.query_list, frame)
-                run_clip(self.include_queries, self.exclude_queries, self.default_queries, frame, frame_index, self.query_name,frame_skip = self.frame_to_skip, fps=self.fps)
+                run_clip(self.include_queries, self.exclude_queries, self.default_queries, frame, frame_index, frame_skip = self.frame_to_skip, fps=self.fps, json_path=self.json_path, raw_query=self.raw_query, qid=self.qid, vid=self.vid)
                 # frame_index += 1
 
         except KeyboardInterrupt:
