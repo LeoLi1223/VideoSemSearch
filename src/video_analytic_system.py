@@ -80,7 +80,7 @@ class VideoAnalyticSystem:
 if __name__ == "__main__":
     source = "../data/market.mp4"
     # source = "../data/sanFrancisco.mp4"
-
+    
     # Delete the old JSON file
     json_path = "output_windows.json"
     if os.path.exists(json_path):
@@ -106,8 +106,13 @@ if __name__ == "__main__":
   "bookshelf",
   "mirror"]
 
+    # default_queries = [
+    # "mouse", "mug", "water bottle", "book", "computer", "gengar", "ghost", "phone", "bag",
+    # "umbrella", "cookie","table", "background", "buildings", "cars", "person",
+    # "woman", "man", "standing person", "sitting person", "face", "market vendor",
+    # "hand", "body", "crowd", "tree", "sky", "box", "sign", "poster", "camera"
+    # ]
     
-
     # Initialize the system
     system = VideoAnalyticSystem(
         source,
