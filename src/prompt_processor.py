@@ -5,19 +5,42 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def split_joined_predicates(prompt: str) -> tuple[list[str], list[str]]:
     system_prompt = """
-        You are an assistant that extracts exactly what the user *wants* and *doesn't want* to see from a natural language visual query.
-        Strictly use the user's original words — do not rephrase, elaborate, or infer additional meanings.
+        You are a helpful assistant for decomposing natural language video search prompts.
 
-        Return a Python dictionary in the format:
+        Given a natural language query that may describe:
+        - what the user wants to see (positive visual scenes), and
+        - what they want to avoid (negative visual elements),
+
+        return a JSON object in the form:
+
         {
-        "include": [...],   # exact phrases the user wants to see
-        "exclude": [...]    # exact phrases the user does NOT want to see
+        "include": [...],  // short descriptions of what to include
+        "exclude": [...]   // short descriptions of what to avoid
         }
 
-        Do not interpret or expand the query (e.g., don't turn "apples" into "apples in a basket").
-        Only extract direct phrases from the user input.
+        Each entry should be a concise visual predicate.
 
-        Only return the Python dictionary. No explanation.
+        🔍 You must also infer *implied negatives* from phrases like:
+        - "without glasses" → include: "person", exclude: "glasses"
+        - "not holding a phone" → include: "person", exclude: "phone"
+        - "a man wearing a cap without sunglasses" → include: "man wearing a cap", exclude: "sunglasses"
+
+        Avoid copying full sentences. Break down compound descriptions into atomic visual units.
+
+        📌 Examples:
+
+        Input:
+        "I want apples or peanuts, but not lemons"
+        Output:
+        {"include": ["apples", "peanuts"], "exclude": ["lemons"]}
+
+        Input:
+        "Asian man wearing a cap without glasses walks through an airport"
+        Output:
+        {"include": ["Asian man wearing a cap", "walking through an airport"], "exclude": ["glasses"]}
+
+        Return only the JSON object.
+
         """
     user_prompt = f'User input: "{prompt}"'
 
