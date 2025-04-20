@@ -18,14 +18,16 @@ def split_joined_predicates(prompt: str) -> tuple[list[str], list[str]]:
         "exclude": [...]   // short descriptions of what to avoid
         }
 
-        Each entry should be a concise visual predicate.
+        Each entry should be a concise visual predicate that can be understood by a vision-language model.
 
-        🔍 You must also infer *implied negatives* from phrases like:
-        - "without glasses" → include: "person", exclude: "glasses"
-        - "not holding a phone" → include: "person", exclude: "phone"
-        - "a man wearing a cap without sunglasses" → include: "man wearing a cap", exclude: "sunglasses"
+        ✅ If a sentence contains multiple actions or attributes tied to the same subject (e.g. "Asian man"), you must repeat the subject in each entry:
+        - "Asian man wearing a cap without glasses walking through an airport"
+        → include: ["Asian man wearing a cap", "Asian man walking through an airport"]
+        → exclude: ["Asian man with glasses"]
 
-        Avoid copying full sentences. Break down compound descriptions into atomic visual units.
+        🔍 Also infer negatives from implicit phrases like:
+        - "without glasses" → exclude: "glasses"
+        - "not holding a phone" → exclude: "phone"
 
         📌 Examples:
 
@@ -37,10 +39,9 @@ def split_joined_predicates(prompt: str) -> tuple[list[str], list[str]]:
         Input:
         "Asian man wearing a cap without glasses walks through an airport"
         Output:
-        {"include": ["Asian man wearing a cap", "walking through an airport"], "exclude": ["glasses"]}
+        {"include": ["Asian man wearing a cap", "Asian man walking through an airport"], "exclude": ["Asian man with glasses"]}
 
-        Return only the JSON object.
-
+        Return only the JSON object. Do not include explanation or natural language commentary.
         """
     user_prompt = f'User input: "{prompt}"'
 
