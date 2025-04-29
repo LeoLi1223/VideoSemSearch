@@ -1,6 +1,4 @@
 opencv-python
-kafka-python
-apache-flink 
 pillow
 torch
 torchvision
