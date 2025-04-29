@@ -1,10 +1,35 @@
 {
-  "query": "Asian man wearing a cap without glasses walks through a airport.",
+  "query": "I want to see the National flag of the United States on the street, and can you also give me scenes of parked FedEx vehicles? But I don\u2019t want to see any Zebra Crossing on the road!",
   "pred_relevant_windows": [
     [
-      21.72,
-      21.76,
-      0.997
+      146.85,  //  2 min 27 sec
+      146.88,
+      0.996
+    ],
+    [
+      151.85,
+      151.88,
+      0.9951
+    ],
+    [
+      196.9, // 3 min 17 sec
+      198.6,
+      0.9973
+    ],
+    [
+      632.33,
+      632.36,
+      0.9968
+    ],
+    [
+      682.38,
+      682.41,
+      0.9984
+    ],
+    [
+      1019.38,
+      1019.41,
+      0.9961
     ]
   ]
 }
