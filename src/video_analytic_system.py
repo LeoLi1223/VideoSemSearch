@@ -4,9 +4,9 @@ import cv2
 from PIL import Image
 from concurrent.futures import ThreadPoolExecutor, Future
 
-from .video_stream import VideoStream
-from .clip import run_clip, finalize_clip_session, flush_query_header
-from .prompt_processor import split_joined_predicates
+from video_stream import VideoStream
+from clip import run_clip, finalize_clip_session, flush_query_header
+from prompt_processor import split_joined_predicates
 
 
 class VideoAnalyticSystem:
@@ -17,7 +17,7 @@ class VideoAnalyticSystem:
         exclude_queries: list[str],
         default_queries: list[str],
         raw_query: str,
-        qid: str,
+        qid: str = "",
         json_path: str = "output_windows.json",
     ):
         self.video_source = video_source
@@ -30,7 +30,10 @@ class VideoAnalyticSystem:
         self.executor = ThreadPoolExecutor(2)
         self.raw_query = raw_query
         self.qid = qid
-        self.vid = video_source.split("/")[-1].split(".")[0]
+        try:
+            self.vid = video_source.split("/")[-1].split(".")[0]
+        except:
+            self.vid = None
         self.json_path = json_path
     def run(self):
         try:
@@ -80,7 +83,7 @@ class VideoAnalyticSystem:
 
 
 if __name__ == "__main__":
-    source = "../data/market.mp4"
+    source = "../data/market.mp4" # CHANGE TO YOUR VIDEO SOURCE!
     # source = "../data/sanFrancisco.mp4"
     
     # Delete the old JSON file
@@ -121,7 +124,7 @@ if __name__ == "__main__":
         include,
         exclude,
         default_queries,
-        raw_query=user_prompt,
+        raw_query=user_prompt
     )
 
     # Loading Streaming Road Camera

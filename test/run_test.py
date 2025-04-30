@@ -12,7 +12,7 @@ import numpy as np
 
 print(softmax_threshold, exclude_threshold)
 
-test_data_filepath = "combined_test.jsonl"
+test_data_filepath = "../data/highlight_val_release.jsonl"
 default_queries = ["mouse", "mug", "water bottle", "book", "orange", "computer", "gengar", "ghost", "phone", "bag",
                        "laptop","phone","backpack","keyboard","headphones","sofa", "television","bed","lamp","plant in a pot","person sitting at a table","window with sunlight","open fridge","bookshelf","mirror"]
 
@@ -30,7 +30,7 @@ def run_one_test_split(test_data_json):
     print(f"[INFO] query: {user_query}")
     print(f"[INFO] include: {include}")
     print(f"[INFO] exclude: {exclude}")
-    video_source = f"../../scratch/videos/{test_data_json['vid']}.mp4"
+    video_source = f"../data/{test_data_json['vid']}.mp4"
     print()
 
     system = VideoAnalyticSystem(
@@ -45,7 +45,7 @@ def run_one_test_no_split(test_data_json):
     print(f"[INFO] qid: {qid}")
     user_query = test_data_json["query"]
     print(f"[INFO] query: {user_query}")
-    video_source = f"../../scratch/videos/{test_data_json['vid']}.mp4"
+    video_source = f"../data/{test_data_json['vid']}.mp4"
     print()
 
     system = VideoAnalyticSystem(

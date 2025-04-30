@@ -122,13 +122,13 @@ def run_clip(
     exclude_scores = [(q, get_softmax_score_for_query(q)) for q in exclude_queries]
 
     # === [DEBUG]Print scores for frames
-    # print(f"\n[DEBUG] Frame {frame_index}")
-    # print("  Include scores:")
-    # for q, s in include_scores:
-    #     print(f"    {q}: {s:.4f}")
-    # print("  Exclude scores:")
-    # for q, s in exclude_scores:
-    #     print(f"    {q}: {s:.4f}")
+    print(f"\n[DEBUG] Frame {frame_index}")
+    print("  Include scores:")
+    for q, s in include_scores:
+        print(f"    {q}: {s:.4f}")
+    print("  Exclude scores:")
+    for q, s in exclude_scores:
+        print(f"    {q}: {s:.4f}")
 
     include_pass = any(s > softmax_threshold for _, s in include_scores)
     exclude_fail = any(s > exclude_threshold for _, s in exclude_scores)
