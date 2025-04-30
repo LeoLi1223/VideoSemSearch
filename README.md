@@ -108,5 +108,5 @@ Otherwise, if you would like to evaluate the non-split version, run:
 ```
 python3 run_test.py
 ```
-Wait until the program finishes to get your evaluation result. The result files should be seen under your current working directory.
+Wait until the program finishes to get your evaluation result. The result files should be seen under your current working directory. You should also be able to see metrics like mAP, precision, recall, F1, latency outputs in your terminal after the program finishes.
 
